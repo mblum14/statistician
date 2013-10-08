@@ -1,0 +1,6 @@
+[The ]<name> wounds you[ with <attack>] for <amount> point[s] of <kind>[ damage].
+You are wounded for <amount> point[s] of <kind> damage.
+You wound[ the] <name>[ with <attack>] for <amount> point[s] of <kind>[ damage].
+You reflect <amount> point[s] of <kind> damage to[ the] <name>.
+You succumb to your wounds.
+Your mighty blow defeated[ the] <name>.

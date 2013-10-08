@@ -1,0 +1,6 @@
+You wound Perl for 15 points of Readability damage.
+You wound Perl with Metaprogramming for 23 points of Usability damage.
+Your mighty blow defeated Perl.
+C++ walks into the arena.
+C++ wounds you with Compiled Code for 37 points of Speed damage.
+You wound C++ for 52 points of Usability damage.
