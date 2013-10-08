@@ -1,5 +1,6 @@
 require 'bundler'
 Bundler.require
+require File.join(File.dirname(__FILE__), 'lib', 'rule')
 
 def usage message
   $stderr.puts message
@@ -18,6 +19,7 @@ end
 
 rule_filename = 'rules.txt'
 data_filename  = 'data.txt'
+rules = []
 
 loop do
   case ARGV[0]
@@ -29,13 +31,26 @@ loop do
 end
 
 if File.exists? rule_filename
-  rules = File.open(rule_filename)
+  File.open(rule_filename).each_with_index do |line, index|
+    rules << Rule.new(line, "Rule #{index}")
+  end
 else
   error_text rule_filename
 end
 
 if File.exists? data_filename
-  data = File.open(data_filename)
+  File.open(data_filename).each do |line|
+    matched = false
+    rules.each do |rule|
+      if rule.match? line
+        puts rule.parse line
+        matched = true
+        break
+      end
+    end
+    puts "# No Matches" unless matched
+    matched = false
+  end
 else
   error_text data_filename
 end
