@@ -1,37 +1,37 @@
 require 'spec_helper'
-require File.join(File.dirname(__FILE__), '../lib', 'rule')
+require File.join(File.dirname(__FILE__), '../lib', 'statistician')
 
-describe Rule do
+describe Statistician::Rule do
   #[The ]<name> wounds you[ with <attack>] for <amount> point[s] of <kind>[ damage].
 
   describe "initialization" do
     it "initializes with optional regexp text" do
-      rule = Rule.new('[The ]')
+      rule = Statistician::Rule.new('[The ]')
       expect(rule.regexp).to eql(/(?:The )?/)
     end
 
     it "initializes with named capture group regexp" do
-      rule = Rule.new('<name>')
+      rule = Statistician::Rule.new('<name>')
       expect(rule.regexp).to eql(/(?<name>.+?)/)
     end
 
     it "initializes an optional capture group" do
-      rule = Rule.new('[ with <attack>]')
+      rule = Statistician::Rule.new('[ with <attack>]')
       expect(rule.regexp).to eql(/(?: with (?<attack>.+?))?/)
     end
 
     it "can interpret a complex rules" do
-      rule = Rule.new('[The ]<name> wounds you[ with <attack>] for <amount> point[s] of <kind>[ damage].')
+      rule = Statistician::Rule.new('[The ]<name> wounds you[ with <attack>] for <amount> point[s] of <kind>[ damage].')
       solution = /(?:The )?(?<name>.+?) wounds you(?: with (?<attack>.+?))? for (?<amount>.+?) point(?:s)? of (?<kind>.+?)(?: damage)?\./
       expect(rule.regexp).to eql(solution)
-      rule = Rule.new('You wound[ the] <name>[ with <attack>] for <amount> point[s] of <kind>[ damage].')
+      rule = Statistician::Rule.new('You wound[ the] <name>[ with <attack>] for <amount> point[s] of <kind>[ damage].')
       solution = /You wound(?: the)? (?<name>.+?)(?: with (?<attack>.+?))? for (?<amount>.+?) point(?:s)? of (?<kind>.+?)(?: damage)?\./
       expect(rule.regexp).to eql(solution)
     end
   end
 
   describe "#parse" do
-    let(:rule) { Rule.new('[The ]<name> wounds you[ with <attack>] for <amount> point[s] of <kind>[ damage].') }
+    let(:rule) { Statistician::Rule.new('[The ]<name> wounds you[ with <attack>] for <amount> point[s] of <kind>[ damage].') }
     subject{ rule }
 
     it "should output the values of the capture groups" do
@@ -46,7 +46,7 @@ describe Rule do
   end
 
   describe "#match?" do
-    let(:rule) { Rule.new('[The ]<name> wounds you[ with <attack>] for <amount> point[s] of <kind>[ damage].') }
+    let(:rule) { Statistician::Rule.new('[The ]<name> wounds you[ with <attack>] for <amount> point[s] of <kind>[ damage].') }
     subject{ rule }
     it "should not match" do
       data = 'will not match'
