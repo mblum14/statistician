@@ -1,3 +1,5 @@
+require 'ostruct'
+
 module Statistician
   class Reporter
     attr_accessor :agents, :unmatched
@@ -9,30 +11,29 @@ module Statistician
 
     def parse file
       file.each_line do |line|
-        matched = false
-        agents.each do |agent|
-          if agent.match? line
-            agent.parse(line)
-            matched = true
-            break
-          end
-        end
-        unmatched << line unless matched
-        matched = false
+        line.strip!
+        @agents.find { |agent| agent.match(line) } or @unmatched << line
       end
     end
   end
 
   class Rule
-    attr_accessor :regexp, :name
+    attr_reader   :result, :fields, :regexp, :name
 
     def initialize regexp_spec, name='Rule 0'
       @name   = name
       @regexp = Regexp.new translate(regexp_spec)
+      @fields = @regexp.names
     end
 
     def parse text
       "#{name}: #{text.match(regexp).captures.reject(&:nil?).join(', ')}"
+    end
+
+    def match text
+      @result = if md = @regexp.match(text)
+        Hash[*@fields.zip(md.captures).flatten]
+      end
     end
 
     def match? text
@@ -51,50 +52,25 @@ module Statistician
     end
   end
 
-  class Reportable
-    def self.inherited(base)
-      base.class_eval do
-        @rules = []
-        @records = []
+  class Reportable < OpenStruct
+    class << self
+      attr_reader :records
 
-        def self.parse line
-          rules.each do |rule|
-            @records << self.new(rule, line) if rule.match?(line)
-          end
+      def inherited klass
+        klass.class_eval do
+          @rules, @records = [], []
         end
-
-        def self.rule rule
-          @rules << Rule.new(rule)
-        end
-
-        def self.rules
-          @rules
-        end
-
-        def self.records
-          @records
-        end
-
-        def self.match? text
-          matched = false
-          rules.each do |rule|
-            if rule.match?(text)
-              matched = true
-              break
-            end
-          end
-          matched
-        end
-
+        super
       end
-    end
 
-    def initialize rule, line
-      @record = rule.parse(line)
-      methods = [rule.regexp.names, rule.regexp.match(line).captures].transpose
-      methods.each do |method_name, value|
-        value ||= ''
-        define_singleton_method method_name, lambda { value }
+      def rule pattern
+        @rules << Rule.new(pattern)
+      end
+
+      def match text
+        if rule = @rules.find { |rule| rule.match(text) }
+          @records << self.new(rule.result)
+        end
       end
     end
   end

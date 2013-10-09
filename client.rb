@@ -4,9 +4,10 @@ require File.join(File.dirname(__FILE__), 'lib', 'statistician')
 
 def usage message
   $stderr.puts message
-  $stderr.puts("Usage: #{File.bnasename($0)}: rulset [-r <ruleset>] dataset [-d <dataset>]")
-  $stderr.puts("   -r <FILE>      provide another ruleset")
+  $stderr.puts("Usage: #{File.basename($0)}: dataset [-d <dataset>]")
+  $stderr.puts("Will look for data.text as the default dataset\n\n")
   $stderr.puts("   -d <FILE>      provide another dataset")
+  $stderr.puts("   -h             print help text")
   exit 2
 end
 
@@ -18,12 +19,11 @@ def error_text filename
 end
 
 data_filename  = 'data.txt'
-rules = []
 
 loop do
   case ARGV[0]
-  when '-r' then ARGV.shift; rule_filename = ARGV.shift
   when '-d' then ARGV.shift; data_filename  = ARGV.shift
+  when '-h' then ARGV.shift; usage('')
   when /^-/ then  usage("Unknown option: #{ARGV[0].inspect}")
   else break
   end
@@ -71,16 +71,15 @@ end
 
 error_text(data_filename) unless File.exists? data_filename
 
-if __FILE__ == $0
-  lotro = Statistician::Reporter.new(Defense, Offense, Defeat, Victory,
-                                     Healing, Regen, Comment, Ignored)
-  lotro.parse(File.read(ARGV[0]))
+lotro = Statistician::Reporter.new(Defense, Offense, Defeat, Victory,
+                                   Healing, Regen, Comment, Ignored)
+lotro.parse(File.read(data_filename))
 
-  num = Offense.records.size
-  dmg = Offense.records.inject(0) { |sum, off| sum + Integer(off.amount.gsub(',', '_')) }
-  d = Defense.records[3]
+num = Offense.records.size
+dmg = Offense.records.inject(0) { |sum, off| sum + Integer(off.amount.gsub(',', '_')) }
+d = Defense.records[3]
 
-  puts <<-EOT
+puts <<-EOT
 Number of Offense records: #{num}
 Total damage inflicted: #{dmg}
 Average damage per Offense: #{(100.0 * dmg / num).round / 100.0}
@@ -94,5 +93,4 @@ Unmatched rules:
 Comments:
 #{Comment.records.map { |c| c.comment }.join("\n")}
 
-  EOT
-end
+EOT

@@ -1,3 +1,0 @@
-[The ]<name> wounds you[ with <attack>] for <amount> point[s] of <kind>[ damage].
-You wound[ the] <name>[ with <attack>] for <amount> point[s] of <kind>[ damage].
-Your mighty blow defeated[ the] <name>.
